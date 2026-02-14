@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: autoservice_backend
@@ -47,7 +47,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-autoservice}
     ports:
-      - "5432:5432"
+      - "5435:5432"
 
   redis:
     image: redis:7-alpine

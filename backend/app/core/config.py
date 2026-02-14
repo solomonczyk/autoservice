@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     
     REDIS_HOST: str
     REDIS_PORT: int = 6379
+    
+    TELEGRAM_BOT_TOKEN: str = "YOUR_BOT_TOKEN_HERE" # Placeholder, should be in .env
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
