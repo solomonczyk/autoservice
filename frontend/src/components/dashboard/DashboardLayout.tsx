@@ -11,10 +11,10 @@ export default function DashboardLayout() {
     const location = useLocation();
 
     const navItems = [
-        { name: "Kanban", href: "/", icon: LayoutDashboard },
-        { name: "Calendar", href: "/calendar", icon: CalendarDays },
-        { name: "Clients", href: "/clients", icon: Users },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: "Канбан", href: "/", icon: LayoutDashboard },
+        { name: "Календарь", href: "/calendar", icon: CalendarDays },
+        { name: "Клиенты", href: "/clients", icon: Users },
+        { name: "Настройки", href: "/settings", icon: Settings },
     ];
 
     return (
@@ -22,7 +22,7 @@ export default function DashboardLayout() {
             {/* Sidebar */}
             <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
                 <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-xl font-bold text-gray-800 dark:text-white">AutoService</span>
+                    <span className="text-xl font-bold text-gray-800 dark:text-white">Автосервис</span>
                 </div>
                 <nav className="p-4 space-y-2">
                     {navItems.map((item) => {
@@ -51,7 +51,7 @@ export default function DashboardLayout() {
             <main className="flex-1 overflow-auto">
                 <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-8">
                     <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
-                        {navItems.find(i => i.href === location.pathname)?.name || "Dashboard"}
+                        {navItems.find(i => i.href === location.pathname)?.name || "Панель управления"}
                     </h1>
                     <div className="flex items-center space-x-4">
                         {/* User Menu placeholder */}

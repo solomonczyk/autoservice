@@ -1,17 +1,37 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import KanbanPage from '@/pages/KanbanPage'
 import CalendarPage from '@/pages/CalendarPage'
+import LoginPage from '@/pages/LoginPage'
+import BookingPage from '@/pages/WebApp/BookingPage'
+
+function RequireAuth() {
+    const { isAuthenticated } = useAuth();
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+}
+
+import { WebSocketProvider } from '@/contexts/WebSocketContext'
 
 function App() {
     return (
-        <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-                <Route index element={<KanbanPage />} />
-                <Route path="calendar" element={<CalendarPage />} />
-                {/* Add more routes here */}
-            </Route>
-        </Routes>
+        <AuthProvider>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/webapp" element={<BookingPage />} />
+
+                <Route element={<RequireAuth />}>
+                    <Route path="/" element={
+                        <WebSocketProvider url="ws://localhost:8000/ws">
+                            <DashboardLayout />
+                        </WebSocketProvider>
+                    }>
+                        <Route index element={<KanbanPage />} />
+                        <Route path="calendar" element={<CalendarPage />} />
+                    </Route>
+                </Route>
+            </Routes>
+        </AuthProvider>
     )
 }
 

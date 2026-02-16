@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.db.session import get_db
-from app.models.models import Shop
+from app.models.models import Shop, User, UserRole
+from app.api import deps
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -19,7 +20,11 @@ class ShopRead(ShopCreate):
         from_attributes = True
 
 @router.post("/", response_model=ShopRead)
-async def create_shop(shop: ShopCreate, db: AsyncSession = Depends(get_db)):
+async def create_shop(
+    shop: ShopCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(deps.require_role([UserRole.ADMIN]))
+):
     db_shop = Shop(name=shop.name, address=shop.address)
     db.add(db_shop)
     await db.commit()

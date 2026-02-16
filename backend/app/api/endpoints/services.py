@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.db.session import get_db
-from app.models.models import Service
+from app.models.models import Service, User, UserRole
+from app.api import deps
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -20,7 +21,11 @@ class ServiceRead(ServiceCreate):
         from_attributes = True
 
 @router.post("/", response_model=ServiceRead)
-async def create_service(service: ServiceCreate, db: AsyncSession = Depends(get_db)):
+async def create_service(
+    service: ServiceCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(deps.require_role([UserRole.ADMIN]))
+):
     db_service = Service(
         name=service.name, 
         duration_minutes=service.duration_minutes,

@@ -6,10 +6,10 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 const COLUMNS = [
-    { id: 'new', title: 'New' },
-    { id: 'confirmed', title: 'Confirmed' },
-    { id: 'in_progress', title: 'In Progress' },
-    { id: 'done', title: 'Done' },
+    { id: 'new', title: 'Новая' },
+    { id: 'confirmed', title: 'Подтверждена' },
+    { id: 'in_progress', title: 'В работе' },
+    { id: 'done', title: 'Готова' },
 ];
 
 function DraggableCard({ appointment }: { appointment: Appointment }) {
@@ -26,7 +26,7 @@ function DraggableCard({ appointment }: { appointment: Appointment }) {
         <div ref={setNodeRef} style={style} {...listeners} {...attributes} className="mb-2 touch-none">
             <Card className="cursor-move hover:shadow-md transition-shadow">
                 <CardContent className="p-3">
-                    <div className="font-medium">Appt #{appointment.id}</div>
+                    <div className="font-medium">Заказ #{appointment.id}</div>
                     <div className="text-xs text-muted-foreground">
                         {format(new Date(appointment.start_time), 'HH:mm')}
                     </div>
@@ -56,18 +56,18 @@ function DroppableColumn({ id, title, appointments }: { id: string, title: strin
 import { useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useEffect } from "react";
+import { useUpdateAppointmentStatus } from '@/hooks/useUpdateAppointmentStatus';
 
 export default function KanbanBoard() {
     const { data: appointments = [] } = useAppointments();
     const queryClient = useQueryClient();
     const { lastMessage } = useWebSocket();
+    const updateStatusMutation = useUpdateAppointmentStatus();
 
     // Listen for real-time updates
     useEffect(() => {
         if (lastMessage) {
             console.log("WS Update received:", lastMessage);
-            // In a real app, we check if message is relevant to appointments
-            // For MVP, we just refetch all appointments on any message
             queryClient.invalidateQueries({ queryKey: ["appointments"] });
         }
     }, [lastMessage, queryClient]);
@@ -79,7 +79,7 @@ export default function KanbanBoard() {
             confirmed: [],
             in_progress: [],
             done: [],
-            cancelled: [] // Add cancelled if needed in board
+            cancelled: []
         };
         appointments.forEach(appt => {
             if (groups[appt.status]) {
@@ -93,11 +93,15 @@ export default function KanbanBoard() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            // TODO: Call update mutation
             const newStatus = over.id as string;
-            const appointmentId = active.id;
-            console.log(`Moved ${appointmentId} to ${newStatus}`);
-            // updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
+            const appointmentId = active.id as number;
+
+            // Find current appointment to check if status actually changed
+            const appt = appointments.find(a => a.id === appointmentId);
+            if (appt && appt.status !== newStatus) {
+                console.log(`Moving ${appointmentId} to ${newStatus}`);
+                updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
+            }
         }
     };
 

@@ -21,6 +21,30 @@ class Shop(Base):
     address: Mapped[str] = mapped_column(String(500))
 
     appointments: Mapped[List["Appointment"]] = relationship(back_populates="shop")
+    users: Mapped[List["User"]] = relationship(back_populates="shop")
+
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    MANAGER = "manager"
+    STAFF = "staff"
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    is_active: Mapped[bool] = mapped_column(default=True)
+    
+    role: Mapped[UserRole] = mapped_column(
+        SQLAlchemyEnum(UserRole), 
+        default=UserRole.STAFF,
+        nullable=False
+    )
+
+    # Tenant Integrity: A user belongs to a Shop (Tenant)
+    shop_id: Mapped[int] = mapped_column(ForeignKey("shops.id"))
+    shop: Mapped["Shop"] = relationship(back_populates="users")
 
 class Client(Base):
     __tablename__ = "clients"

@@ -4,6 +4,7 @@ from typing import Optional
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Autoservice MVP"
     API_V1_STR: str = "/api/v1"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:5174"]
     
     POSTGRES_SERVER: str
     POSTGRES_USER: str
@@ -14,6 +15,12 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     
     TELEGRAM_BOT_TOKEN: str = "YOUR_BOT_TOKEN_HERE" # Placeholder, should be in .env
+
+    SECRET_KEY: str = "YOUR_SECRET_KEY_HERE_CHANGE_IN_PROD"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    WEBAPP_URL: str = "http://localhost:5173/webapp"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

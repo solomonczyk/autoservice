@@ -20,6 +20,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 from app.models.models import Base
 from app.core.config import settings
+from app.db.session import Base
+from app.models.models import User, Shop, Service, Client, Appointment # Explicit imports.metadata
 
 target_metadata = Base.metadata
 
