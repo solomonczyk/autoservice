@@ -9,5 +9,7 @@ redis==5.0.1
 python-multipart==0.0.7
 httpx==0.26.0
 pyjwt==2.8.0
+python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 aiogram>=3.4.0
+openai>=1.10.0

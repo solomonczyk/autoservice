@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { api } from "@/lib/api";
 
 interface AuthContextType {
     token: string | null;
@@ -16,11 +15,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (token) {
             localStorage.setItem("token", token);
-            // Update axios default header
-            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         } else {
             localStorage.removeItem("token");
-            delete api.defaults.headers.common["Authorization"];
         }
     }, [token]);
 

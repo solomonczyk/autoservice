@@ -8,6 +8,7 @@ if sys.platform == 'win32':
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from app.core.config import settings
 from app.bot.loader import bot, dp
 from app.bot.handlers import router as bot_router
 
@@ -19,6 +20,7 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     
     logger.info("Bot is polling...")
+    logger.info(f"Starting bot with WEBAPP_URL: {settings.WEBAPP_URL}")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

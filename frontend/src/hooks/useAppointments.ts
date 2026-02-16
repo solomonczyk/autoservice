@@ -15,7 +15,7 @@ export function useAppointments() {
     return useQuery({
         queryKey: ["appointments"],
         queryFn: async () => {
-            const { data } = await api.get<Appointment[]>("/appointments");
+            const { data } = await api.get<Appointment[]>("/appointments/");
             return data;
         },
     });

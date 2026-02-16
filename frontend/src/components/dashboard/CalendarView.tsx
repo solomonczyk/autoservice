@@ -1,15 +1,20 @@
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
-import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import enUS from 'date-fns/locale/en-US'
+import { format } from 'date-fns'
+import { parse } from 'date-fns'
+import { startOfWeek } from 'date-fns'
+import { getDay } from 'date-fns'
+import { enUS } from 'date-fns/locale/en-US'
+import { ru } from 'date-fns/locale/ru'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { useMemo, useState } from 'react'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useAppointments } from '@/hooks/useAppointments'
-import { useMemo } from 'react'
+import AppointmentEditDialog from './AppointmentEditDialog'
+import { Appointment } from '@/hooks/useAppointments'
 
 const locales = {
     'en-US': enUS,
+    'ru': ru,
 }
 
 const localizer = dateFnsLocalizer({
@@ -22,27 +27,59 @@ const localizer = dateFnsLocalizer({
 
 export default function CalendarView() {
     const { data: appointments = [] } = useAppointments()
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     const events = useMemo(() => {
         return appointments.map(appt => ({
             id: appt.id,
-            title: `Service #${appt.service_id}`, // In real app, fetch service name
+            title: `Заказ #${appt.id}`,
             start: new Date(appt.start_time),
             end: new Date(appt.end_time),
             resource: appt
         }))
     }, [appointments])
 
+    const handleSelectEvent = (event: any) => {
+        setSelectedAppointment(event.resource);
+        setIsEditDialogOpen(true);
+    };
+
     return (
-        <div className="h-[600px] bg-white p-4 rounded-lg shadow-sm">
-            <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: '100%' }}
-                defaultView="week"
-                views={['month', 'week', 'day']}
+        <div className="space-y-4">
+            <div className="h-[600px] bg-white p-4 rounded-lg shadow-sm">
+                <Calendar
+                    localizer={localizer}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: '100%' }}
+                    defaultView="week"
+                    views={['month', 'week', 'day']}
+                    culture="ru"
+                    onSelectEvent={handleSelectEvent}
+                    messages={{
+                        next: "След",
+                        previous: "Пред",
+                        today: "Сегодня",
+                        month: "Месяц",
+                        week: "Неделя",
+                        day: "День",
+                        agenda: "Повестка",
+                        date: "Дата",
+                        time: "Время",
+                        event: "Событие",
+                        noEventsInRange: "Записей нет",
+                        allDay: "Весь день",
+                        showMore: total => `+ еще ${total}`
+                    }}
+                />
+            </div>
+
+            <AppointmentEditDialog
+                appointment={selectedAppointment}
+                isOpen={isEditDialogOpen}
+                onClose={() => setIsEditDialogOpen(false)}
             />
         </div>
     )

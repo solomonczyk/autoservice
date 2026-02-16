@@ -55,6 +55,14 @@ else:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.debug(f"Incoming request: {request.method} {request.url.path}")
+    logger.debug(f"Headers: {request.headers.get('authorization', 'No Auth Header')[:20]}...")
+    response = await call_next(request)
+    logger.debug(f"Response status: {response.status_code}")
+    return response
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "project": settings.PROJECT_NAME}

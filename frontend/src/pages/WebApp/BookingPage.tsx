@@ -2,9 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { format, addDays, isSameDay, startOfDay } from 'date-fns';
+import { format, addDays, isSameDay, startOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Calendar, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
 
 declare global {
     interface Window {
@@ -19,6 +19,96 @@ interface Service {
     base_price: number;
 }
 
+const CalendarModal = ({
+    isOpen,
+    onClose,
+    selectedDate,
+    onSelect
+}: {
+    isOpen: boolean,
+    onClose: () => void,
+    selectedDate: Date,
+    onSelect: (date: Date) => void
+}) => {
+    const [currentMonth, setCurrentMonth] = useState(startOfMonth(selectedDate));
+
+    if (!isOpen) return null;
+
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    const calendarDays = eachDayOfInterval({
+        start: startDate,
+        end: endDate,
+    });
+
+    const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-background w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-border animate-in zoom-in-95 duration-200">
+                <div className="p-4 bg-primary/5 border-b border-border flex items-center justify-between">
+                    <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-accent rounded-full transition-colors">
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <div className="font-bold text-lg capitalize">
+                        {format(currentMonth, 'LLLL yyyy', { locale: ru })}
+                    </div>
+                    <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-accent rounded-full transition-colors rotate-180">
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <div className="p-4">
+                    <div className="grid grid-cols-7 mb-2">
+                        {weekDays.map(day => (
+                            <div key={day} className="text-center text-[10px] font-bold opacity-40 uppercase">
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                        {calendarDays.map(day => {
+                            const isSelected = isSameDay(day, selectedDate);
+                            const isCurrentMonth = isSameMonth(day, monthStart);
+                            const isPast = startOfDay(day) < startOfDay(new Date());
+                            const isTooFar = startOfDay(day) > addDays(startOfDay(new Date()), 30);
+
+                            return (
+                                <button
+                                    key={day.toISOString()}
+                                    disabled={isPast || isTooFar}
+                                    onClick={() => {
+                                        onSelect(day);
+                                        onClose();
+                                    }}
+                                    className={`
+                                        h-10 w-full rounded-xl flex items-center justify-center text-sm font-medium transition-all
+                                        ${isSelected ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110 z-10' : ''}
+                                        ${!isSelected && isCurrentMonth ? 'hover:bg-accent' : ''}
+                                        ${!isCurrentMonth ? 'opacity-20' : ''}
+                                        ${(isPast || isTooFar) && !isSelected ? 'opacity-10 cursor-not-allowed grayscale' : ''}
+                                    `}
+                                >
+                                    {format(day, 'd')}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div className="p-4 bg-accent/20 flex gap-3">
+                    <Button variant="ghost" className="flex-1 rounded-xl font-bold" onClick={onClose}>
+                        ОТМЕНА
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function BookingPage() {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,6 +117,21 @@ export default function BookingPage() {
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>('');
     const [slotsLoading, setSlotsLoading] = useState(false);
+    const [showCalendar, setShowCalendar] = useState(false);
+
+    // Auto-scroll horizontal dates list when selectedDate changes
+    useEffect(() => {
+        const dateId = `date-${format(selectedDate, 'yyyy-MM-dd')}`;
+        const element = document.getElementById(dateId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }, [selectedDate]);
+
+    // Detect if we are in edit mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const appointmentId = urlParams.get('appointment_id');
+    const isEditMode = !!appointmentId;
 
     const tg = window.Telegram?.WebApp;
 
@@ -35,7 +140,7 @@ export default function BookingPage() {
         tg?.expand();
 
         tg?.MainButton.setParams({
-            text: 'ЗАПИСАТЬСЯ',
+            text: isEditMode ? 'ИЗМЕНИТЬ ЗАПИСЬ' : 'ЗАПИСАТЬСЯ',
             color: '#2481cc'
         });
 
@@ -43,11 +148,11 @@ export default function BookingPage() {
             .then(res => setServices(res.data))
             .catch(err => console.error("Failed to fetch services", err))
             .finally(() => setLoading(false));
-    }, []);
+    }, [isEditMode]);
 
-    // Generate next 14 days
+    // Generate next 30 days
     const dates = useMemo(() => {
-        return Array.from({ length: 14 }).map((_, i) => addDays(startOfDay(new Date()), i));
+        return Array.from({ length: 30 }).map((_, i) => addDays(startOfDay(new Date()), i));
     }, []);
 
     // Fetch slots when service or date changes
@@ -73,31 +178,33 @@ export default function BookingPage() {
         }
     }, [selectedService, selectedDate]);
 
-    const handleSubmit = () => {
-        if (!selectedService || !selectedTime) return;
+    const handleSubmit = (isWaitlist: boolean = false) => {
+        if (!selectedService || (!selectedTime && !isWaitlist)) return;
 
         const data = {
             service_id: selectedService.id,
-            date: selectedTime // Backend already returns ISO strings
+            date: isWaitlist ? selectedDate.toISOString() : selectedTime,
+            appointment_id: appointmentId, // Include if editing
+            is_waitlist: isWaitlist
         };
 
         if (tg) {
             tg.sendData(JSON.stringify(data));
         } else {
             console.log("WebApp Data would be sent:", data);
-            alert("Запись создана! (В Telegram данные были бы отправлены боту)");
+            alert(isWaitlist ? "Заявка в лист ожидания отправлена!" : (isEditMode ? "Запись изменена!" : "Запись создана!"));
         }
     };
 
     useEffect(() => {
         if (selectedService && selectedTime) {
             tg?.MainButton.show();
-            tg?.MainButton.onClick(handleSubmit);
+            tg?.MainButton.onClick(() => handleSubmit(false));
         } else {
             tg?.MainButton.hide();
         }
         return () => {
-            tg?.MainButton.offClick(handleSubmit);
+            tg?.MainButton.offClick(() => handleSubmit(false));
         }
     }, [selectedService, selectedTime]);
 
@@ -126,33 +233,54 @@ export default function BookingPage() {
 
                 {/* Date Selection */}
                 <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold opacity-70">
-                        <Calendar className="w-4 h-4" />
-                        ВЫБЕРИТЕ ДАТУ
+                    <div className="flex items-center justify-between text-sm font-semibold opacity-70">
+                        <div className="flex items-center gap-2">
+                            <CalendarIcon className="w-4 h-4" />
+                            ВЫБЕРИТЕ ДАТУ
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 px-3 text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 gap-2 font-bold"
+                            onClick={() => setShowCalendar(true)}
+                        >
+                            <CalendarIcon className="w-4 h-4" />
+                            ОТКРЫТЬ КАЛЕНДАРЬ
+                        </Button>
                     </div>
-                    <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                        {dates.map((d) => {
-                            const isSelected = isSameDay(d, selectedDate);
-                            return (
-                                <button
-                                    key={d.toISOString()}
-                                    onClick={() => setSelectedDate(d)}
-                                    className={`flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center transition-all ${isSelected
-                                            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
-                                            : 'bg-accent/40 hover:bg-accent'
-                                        }`}
-                                >
-                                    <span className="text-[10px] uppercase font-bold opacity-60">
-                                        {format(d, 'EEE', { locale: ru })}
-                                    </span>
-                                    <span className="text-lg font-bold">
-                                        {format(d, 'd')}
-                                    </span>
-                                </button>
-                            );
-                        })}
+
+                    {/* Selected Date Display - Replaces the horizontal scroller */}
+                    <div className="bg-accent/30 p-4 rounded-xl flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-primary/10 p-2.5 rounded-xl">
+                                <CalendarIcon className="text-primary w-5 h-5" />
+                            </div>
+                            <div>
+                                <div className="font-bold text-base capitalize">
+                                    {format(selectedDate, 'd MMMM yyyy', { locale: ru })}
+                                </div>
+                                <div className="text-muted-foreground text-xs uppercase font-bold opacity-60 flex items-center gap-1.5">
+                                    <div className="w-1 h-1 rounded-full bg-primary" />
+                                    {format(selectedDate, 'EEEE', { locale: ru })}
+                                </div>
+                            </div>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-primary font-bold pr-0" onClick={() => setShowCalendar(true)}>
+                            ИЗМЕНИТЬ
+                        </Button>
                     </div>
                 </div>
+
+                <CalendarModal
+                    isOpen={showCalendar}
+                    onClose={() => setShowCalendar(false)}
+                    selectedDate={selectedDate}
+                    onSelect={(date) => {
+                        setSelectedDate(date);
+                    }}
+                />
+
 
                 {/* Time Selection */}
                 <div className="space-y-3">
@@ -177,8 +305,8 @@ export default function BookingPage() {
                                         key={slot}
                                         onClick={() => setSelectedTime(slot)}
                                         className={`h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all ${isSelected
-                                                ? 'bg-primary text-primary-foreground shadow-md'
-                                                : 'bg-accent/40 hover:bg-accent'
+                                            ? 'bg-primary text-primary-foreground shadow-md'
+                                            : 'bg-accent/40 hover:bg-accent'
                                             }`}
                                     >
                                         {timeLabel}
@@ -187,8 +315,16 @@ export default function BookingPage() {
                             })}
                         </div>
                     ) : (
-                        <div className="text-center py-8 bg-accent/10 rounded-xl border border-dashed border-accent">
+                        <div className="text-center py-6 bg-accent/10 rounded-xl border border-dashed border-accent space-y-3">
                             <p className="text-muted-foreground text-sm">Нет свободных слотов на эту дату</p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="font-bold border-primary text-primary hover:bg-primary/10"
+                                onClick={() => handleSubmit(true)}
+                            >
+                                ОСТАВИТЬ ЗАЯВКУ В ЛИСТ ОЖИДАНИЯ
+                            </Button>
                         </div>
                     )}
                 </div>
@@ -197,7 +333,7 @@ export default function BookingPage() {
                     <Button
                         className="w-full h-14 text-lg font-bold shadow-xl shadow-primary/20"
                         disabled={!selectedTime}
-                        onClick={handleSubmit}
+                        onClick={() => handleSubmit(false)}
                     >
                         ПОДТВЕРДИТЬ ЗАПИСЬ
                     </Button>

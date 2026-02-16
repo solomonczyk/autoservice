@@ -36,6 +36,58 @@ class AppointmentRead(BaseModel):
 class AppointmentStatusUpdate(BaseModel):
     status: AppointmentStatus
 
+class AppointmentUpdate(BaseModel):
+    service_id: int = None
+    start_time: datetime = None
+
+@router.patch("/{id}", response_model=AppointmentRead)
+async def update_appointment(
+    id: int,
+    appt_update: AppointmentUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(deps.require_role([UserRole.ADMIN, UserRole.MANAGER]))
+):
+    stmt = select(Appointment).where(Appointment.id == id)
+    result = await db.execute(stmt)
+    appt = result.scalar_one_or_none()
+    
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+        
+    if appt.shop_id != current_user.shop_id:
+         raise HTTPException(status_code=403, detail="Not authorized to update this appointment")
+
+    if appt_update.service_id:
+        service = await db.get(Service, appt_update.service_id)
+        if not service:
+            raise HTTPException(status_code=404, detail="Service not found")
+        appt.service_id = appt_update.service_id
+        # Trigger recalculation of end_time if start_time or service changed
+        start = appt_update.start_time or appt.start_time
+        appt.end_time = start + timedelta(minutes=service.duration_minutes)
+        
+    if appt_update.start_time:
+        appt.start_time = appt_update.start_time
+        # Ensure end_time stays in sync with duration
+        service = await db.get(Service, appt.service_id)
+        appt.end_time = appt.start_time + timedelta(minutes=service.duration_minutes)
+
+    await db.commit()
+    await db.refresh(appt)
+    
+    # Broadcast update
+    redis = RedisService.get_redis()
+    message = {
+        "type": "APPOINTMENT_UPDATED",
+        "data": {
+            "id": appt.id,
+            "shop_id": appt.shop_id
+        }
+    }
+    await redis.publish("appointments_updates", json.dumps(message))
+    
+    return appt
+
 @router.post("/", response_model=AppointmentRead)
 async def create_appointment(
     appt: AppointmentCreate, 

@@ -22,7 +22,7 @@ function App() {
 
                 <Route element={<RequireAuth />}>
                     <Route path="/" element={
-                        <WebSocketProvider url="ws://localhost:8000/ws">
+                        <WebSocketProvider url={`${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/v1/ws`}>
                             <DashboardLayout />
                         </WebSocketProvider>
                     }>

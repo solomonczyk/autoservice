@@ -1,17 +1,18 @@
 from datetime import datetime
 from typing import Optional, List
-from sqlalchemy import ForeignKey, DateTime, String, Integer, Float, Enum as SQLAlchemyEnum
+from sqlalchemy import ForeignKey, DateTime, String, Integer, Float, BigInteger, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 
 from app.db.session import Base
 
 class AppointmentStatus(str, enum.Enum):
-    NEW = "new"
-    CONFIRMED = "confirmed"
-    IN_PROGRESS = "in_progress"
-    DONE = "done"
-    CANCELLED = "cancelled"
+    NEW = "NEW"
+    CONFIRMED = "CONFIRMED"
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+    CANCELLED = "CANCELLED"
+    WAITLIST = "WAITLIST"
 
 class Shop(Base):
     __tablename__ = "shops"
@@ -50,7 +51,7 @@ class Client(Base):
     __tablename__ = "clients"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    telegram_id: Mapped[Optional[int]] = mapped_column(unique=True, index=True)
+    telegram_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, index=True)
     phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255))
     vehicle_info: Mapped[Optional[str]] = mapped_column(String(500))
