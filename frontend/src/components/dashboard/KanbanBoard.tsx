@@ -113,12 +113,12 @@ export default function KanbanBoard() {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const newStatus = over.id as string;
+            const newStatus = (over.id as string).toUpperCase();
             const appointmentId = active.id as number;
 
             // Find current appointment to check if status actually changed
             const appt = appointments.find(a => a.id === appointmentId);
-            if (appt && appt.status !== newStatus) {
+            if (appt && appt.status.toUpperCase() !== newStatus) {
                 console.log(`Moving ${appointmentId} to ${newStatus}`);
                 updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
             }
