@@ -1,8 +1,8 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { format, addDays, isSameDay, startOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns';
+import { format, isSameDay, startOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, addMonths, subMonths, addDays } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
 
@@ -150,10 +150,8 @@ export default function BookingPage() {
             .finally(() => setLoading(false));
     }, [isEditMode]);
 
-    // Generate next 30 days
-    const dates = useMemo(() => {
-        return Array.from({ length: 30 }).map((_, i) => addDays(startOfDay(new Date()), i));
-    }, []);
+
+    // Next 30 days range computed inline where needed
 
     // Fetch slots when service or date changes
     useEffect(() => {

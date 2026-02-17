@@ -76,7 +76,7 @@ export default function CalendarView() {
                         event: "Событие",
                         noEventsInRange: "Записей нет",
                         allDay: "Весь день",
-                        showMore: total => `+ еще ${total}`
+                        showMore: (total: number) => `+ еще ${total}`
                     }}
                 />
             </div>
