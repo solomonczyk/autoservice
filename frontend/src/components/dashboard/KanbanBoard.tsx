@@ -93,6 +93,7 @@ export default function KanbanBoard() {
     // Group appointments by status
     const groupedAppointments = useMemo(() => {
         const groups: Record<string, Appointment[]> = {
+            waitlist: [],
             new: [],
             confirmed: [],
             in_progress: [],
@@ -100,8 +101,9 @@ export default function KanbanBoard() {
             cancelled: []
         };
         appointments.forEach(appt => {
-            if (groups[appt.status]) {
-                groups[appt.status].push(appt);
+            const status = appt.status.toLowerCase();
+            if (groups[status]) {
+                groups[status].push(appt);
             }
         });
         return groups;
