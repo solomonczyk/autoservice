@@ -41,22 +41,22 @@ export default function AppointmentEditDialog({ appointment, isOpen, onClose }: 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-                <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
-                    <h3 className="text-lg font-semibold">Редактировать запись #{appointment.id}</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-card text-foreground border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+                    <h3 className="text-lg font-bold">Редактировать запись #{appointment.id}</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-accent/10 hover:text-accent rounded-full transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
                 <div className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Услуга</label>
+                        <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5">Услуга</label>
                         <select
                             value={serviceId}
                             onChange={(e) => setServiceId(Number(e.target.value))}
-                            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                            className="w-full p-2.5 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                         >
                             {services.map(s => (
                                 <option key={s.id} value={s.id}>{s.name} ({s.duration_minutes} мин)</option>
@@ -65,21 +65,22 @@ export default function AppointmentEditDialog({ appointment, isOpen, onClose }: 
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1">Дата и время</label>
+                        <label className="block text-xs font-bold uppercase text-muted-foreground mb-1.5">Дата и время</label>
                         <input
                             type="datetime-local"
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
-                            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                            className="w-full p-2.5 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                         />
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-700/50">
-                    <Button variant="outline" onClick={onClose}>Отмена</Button>
+                <div className="flex justify-end gap-3 p-4 bg-muted/30 border-t border-border">
+                    <Button variant="ghost" onClick={onClose} className="font-semibold">Отмена</Button>
                     <Button
                         onClick={handleSave}
                         disabled={updateMutation.isPending}
+                        className="font-bold"
                     >
                         {updateMutation.isPending ? 'Сохранение...' : 'Сохранить'}
                     </Button>

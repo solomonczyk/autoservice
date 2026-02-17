@@ -76,3 +76,80 @@
         color: hsl(var(--foreground));
     }
 }
+
+@layer components {
+
+    /* Calendar Overrides */
+    .rbc-calendar {
+        @apply bg-card text-foreground rounded-xl border border-border shadow-sm overflow-hidden font-sans;
+    }
+
+    .rbc-header {
+        @apply py-4 font-bold text-muted-foreground uppercase text-xs tracking-wider border-b border-border !important;
+    }
+
+    .rbc-month-view,
+    .rbc-time-view,
+    .rbc-agenda-view {
+        @apply border-none !important;
+    }
+
+    .rbc-day-bg {
+        @apply border-l border-border !important;
+    }
+
+    .rbc-off-range-bg {
+        @apply bg-muted/20 !important;
+    }
+
+    .rbc-today {
+        @apply bg-primary/10 !important;
+    }
+
+    .rbc-event {
+        @apply bg-primary text-primary-foreground rounded-md shadow-sm border-none px-2 py-1 !important;
+    }
+
+    .rbc-toolbar {
+        @apply mb-6 gap-2 !important;
+    }
+
+    .rbc-toolbar span.rbc-toolbar-label {
+        @apply text-xl font-bold text-foreground capitalize;
+    }
+
+    .rbc-toolbar button {
+        @apply text-foreground border border-border rounded-lg bg-card hover:bg-accent/10 hover:text-accent transition-colors px-4 py-2 !important;
+    }
+
+    .rbc-toolbar button.rbc-active {
+        @apply bg-primary text-primary-foreground border-primary hover:bg-primary/90 !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .rbc-toolbar button:focus,
+    .rbc-toolbar button:active,
+    .rbc-toolbar button:hover {
+        @apply outline-none shadow-none;
+    }
+
+    .rbc-month-row {
+        @apply border-t border-border !important;
+    }
+
+    .rbc-day-slot .rbc-time-slot {
+        @apply border-t border-border !important;
+    }
+
+    .rbc-time-header-content {
+        @apply border-l border-border !important;
+    }
+
+    .rbc-time-content {
+        @apply border-t border-border !important;
+    }
+
+    .rbc-current-time-indicator {
+        @apply bg-primary h-[2px] !important;
+    }
+}

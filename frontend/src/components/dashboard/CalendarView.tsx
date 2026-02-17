@@ -52,7 +52,7 @@ export default function CalendarView() {
 
     return (
         <div className="space-y-4">
-            <div className="h-[600px] bg-white p-4 rounded-lg shadow-sm">
+            <div className="h-[600px] bg-card border border-border p-4 rounded-xl shadow-sm">
                 <Calendar
                     localizer={localizer}
                     events={events}
