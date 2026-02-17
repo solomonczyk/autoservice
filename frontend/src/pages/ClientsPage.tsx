@@ -15,13 +15,22 @@ interface Client {
 export default function ClientsPage() {
     const [search, setSearch] = useState('');
 
-    const { data: clients = [], isLoading } = useQuery({
+    const { data: clients = [], isLoading, isError, error } = useQuery({
         queryKey: ['clients'],
         queryFn: async () => {
             const response = await api.get<Client[]>('/clients/');
+            console.log("Clients response:", response.data);
             return response.data;
         }
     });
+
+    if (isError) {
+        return (
+            <div className="p-4 text-red-500 bg-red-100 dark:bg-red-900/20 rounded-md">
+                Error loading clients: {(error as Error).message}
+            </div>
+        );
+    }
 
     const filteredClients = clients.filter(client =>
         client.full_name.toLowerCase().includes(search.toLowerCase()) ||
