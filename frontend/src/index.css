@@ -77,8 +77,6 @@
     }
 }
 
-}
-
 /* Calendar Overrides — intentionally OUTSIDE @layer so they override react-big-calendar.css */
 .rbc-calendar {
     background-color: hsl(var(--card)) !important;
