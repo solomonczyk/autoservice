@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     TELEGRAM_BOT_TOKEN: str = "YOUR_BOT_TOKEN_HERE" # Placeholder, should be in .env
 
-    SECRET_KEY: str = "YOUR_SECRET_KEY_HERE_CHANGE_IN_PROD"
+    SECRET_KEY: str = "dev-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     

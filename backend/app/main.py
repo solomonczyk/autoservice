@@ -11,8 +11,11 @@ import logging
 import sys
 import asyncio
 
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("aiogram").setLevel(logging.DEBUG)
+import os
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
+logging.getLogger("aiogram").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 if sys.platform == 'win32':
@@ -25,8 +28,6 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     logger.info("Lifespan shutdown initiated")
-    # Shutdown
-    # await bot.session.close()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -57,10 +58,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.middleware("http")
 async def log_requests(request, call_next):
-    logger.debug(f"Incoming request: {request.method} {request.url.path}")
-    logger.debug(f"Headers: {request.headers.get('authorization', 'No Auth Header')[:20]}...")
     response = await call_next(request)
-    logger.debug(f"Response status: {response.status_code}")
+    logger.info(f"{request.method} {request.url.path} → {response.status_code}")
     return response
 
 @app.get("/health")
