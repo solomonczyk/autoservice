@@ -6,6 +6,7 @@ import CalendarPage from '@/pages/CalendarPage'
 import LoginPage from '@/pages/LoginPage'
 import BookingPage from '@/pages/WebApp/BookingPage'
 import ClientsPage from '@/pages/ClientsPage'
+import SettingsPage from '@/pages/SettingsPage'
 
 function RequireAuth() {
     const { isAuthenticated } = useAuth();
@@ -30,6 +31,7 @@ function App() {
                         <Route index element={<KanbanPage />} />
                         <Route path="calendar" element={<CalendarPage />} />
                         <Route path="clients" element={<ClientsPage />} />
+                        <Route path="settings" element={<SettingsPage />} />
                     </Route>
                 </Route>
             </Routes>
