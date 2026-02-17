@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAppointments, Appointment } from '@/hooks/useAppointments';
-import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, useDraggable, useDroppable, DragEndEvent, PointerSensor, MouseSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 
@@ -82,6 +82,14 @@ export default function KanbanBoard() {
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+    const pointerSensor = useSensor(PointerSensor, {
+        activationConstraint: { distance: 5 },
+    });
+    const mouseSensor = useSensor(MouseSensor, {
+        activationConstraint: { distance: 5 },
+    });
+    const sensors = useSensors(pointerSensor, mouseSensor);
+
     // Listen for real-time updates
     useEffect(() => {
         if (lastMessage) {
@@ -132,7 +140,7 @@ export default function KanbanBoard() {
 
     return (
         <>
-            <DndContext onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                     {COLUMNS.map(col => (
                         <DroppableColumn

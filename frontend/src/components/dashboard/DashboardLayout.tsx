@@ -11,7 +11,7 @@ export default function DashboardLayout() {
     const location = useLocation();
 
     const navItems = [
-        { name: "Канбан", href: "/", icon: LayoutDashboard },
+        { name: "Заказы", href: "/", icon: LayoutDashboard },
         { name: "Календарь", href: "/calendar", icon: CalendarDays },
         { name: "Клиенты", href: "/clients", icon: Users },
         { name: "Настройки", href: "/settings", icon: Settings },
