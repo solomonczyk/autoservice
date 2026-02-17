@@ -1,8 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState, DragEvent } from 'react';
 import { useAppointments, Appointment } from '@/hooks/useAppointments';
-import { DndContext, useDraggable, useDroppable, DragEndEvent, PointerSensor, MouseSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
+import { Edit } from 'lucide-react';
+import AppointmentEditDialog from './AppointmentEditDialog';
+import { useQueryClient } from "@tanstack/react-query";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useEffect } from "react";
+import { useUpdateAppointmentStatus } from '@/hooks/useUpdateAppointmentStatus';
 
 const COLUMNS = [
     { id: 'waitlist', title: 'Лист ожидания' },
@@ -12,27 +17,22 @@ const COLUMNS = [
     { id: 'done', title: 'Готова' },
 ];
 
-import { Edit } from 'lucide-react';
-import AppointmentEditDialog from './AppointmentEditDialog';
-
-function DraggableCard({ appointment, onEdit }: { appointment: Appointment, onEdit: (appt: Appointment) => void }) {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id: appointment.id,
-        data: appointment,
-    });
-
-    const style = transform ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    } : undefined;
-
+function DraggableCard({ appointment, onEdit, onDragStart }: {
+    appointment: Appointment,
+    onEdit: (appt: Appointment) => void,
+    onDragStart: (e: DragEvent, appt: Appointment) => void,
+}) {
     return (
-        <div ref={setNodeRef} style={style} {...listeners} {...attributes} className="mb-2 touch-none group relative">
-            <Card className="cursor-move hover:shadow-md transition-shadow">
+        <div
+            draggable
+            onDragStart={(e) => onDragStart(e, appointment)}
+            className="mb-2 group relative cursor-grab active:cursor-grabbing"
+        >
+            <Card className="hover:shadow-md transition-shadow border-l-4 border-l-primary/40">
                 <CardContent className="p-3">
                     <div className="flex justify-between items-start">
                         <div className="font-medium">Заказ #{appointment.id}</div>
                         <button
-                            onPointerDown={e => e.stopPropagation()} // Prevent drag start when clicking edit
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onEdit(appointment);
@@ -51,27 +51,49 @@ function DraggableCard({ appointment, onEdit }: { appointment: Appointment, onEd
     );
 }
 
-function DroppableColumn({ id, title, appointments, onEdit }: { id: string, title: string, appointments: Appointment[], onEdit: (appt: Appointment) => void }) {
-    const { setNodeRef } = useDroppable({
-        id: id,
-    });
-
+function DroppableColumn({ id, title, appointments, onEdit, onDragStart, onDrop, isOver }: {
+    id: string,
+    title: string,
+    appointments: Appointment[],
+    onEdit: (appt: Appointment) => void,
+    onDragStart: (e: DragEvent, appt: Appointment) => void,
+    onDrop: (e: DragEvent, columnId: string) => void,
+    isOver: boolean,
+}) {
     return (
-        <div ref={setNodeRef} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg min-h-[500px] w-full">
-            <h3 className="font-semibold mb-4 text-slate-700 dark:text-slate-300">{title}</h3>
+        <div
+            onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }}
+            onDragEnter={(e) => e.preventDefault()}
+            onDrop={(e) => onDrop(e, id)}
+            className={`p-4 rounded-lg min-h-[500px] w-full transition-colors duration-200 ${isOver
+                    ? 'bg-primary/10 ring-2 ring-primary/30'
+                    : 'bg-slate-50 dark:bg-slate-800/50'
+                }`}
+        >
+            <h3 className="font-semibold mb-4 text-slate-700 dark:text-slate-300">
+                {title}
+                {appointments.length > 0 && (
+                    <span className="ml-2 text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                        {appointments.length}
+                    </span>
+                )}
+            </h3>
             <div className="space-y-2">
                 {appointments.map((appt) => (
-                    <DraggableCard key={appt.id} appointment={appt} onEdit={onEdit} />
+                    <DraggableCard
+                        key={appt.id}
+                        appointment={appt}
+                        onEdit={onEdit}
+                        onDragStart={onDragStart}
+                    />
                 ))}
             </div>
         </div>
     );
 }
-
-import { useQueryClient } from "@tanstack/react-query";
-import { useWebSocket } from "@/contexts/WebSocketContext";
-import { useEffect, useState } from "react";
-import { useUpdateAppointmentStatus } from '@/hooks/useUpdateAppointmentStatus';
 
 export default function KanbanBoard() {
     const { data: appointments = [] } = useAppointments();
@@ -81,14 +103,8 @@ export default function KanbanBoard() {
 
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-    const pointerSensor = useSensor(PointerSensor, {
-        activationConstraint: { distance: 5 },
-    });
-    const mouseSensor = useSensor(MouseSensor, {
-        activationConstraint: { distance: 5 },
-    });
-    const sensors = useSensors(pointerSensor, mouseSensor);
+    const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+    const [draggedAppointment, setDraggedAppointment] = useState<Appointment | null>(null);
 
     // Listen for real-time updates
     useEffect(() => {
@@ -117,20 +133,32 @@ export default function KanbanBoard() {
         return groups;
     }, [appointments]);
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
+    const handleDragStart = (e: DragEvent, appointment: Appointment) => {
+        setDraggedAppointment(appointment);
+        e.dataTransfer.setData('text/plain', String(appointment.id));
+        e.dataTransfer.effectAllowed = 'move';
+    };
 
-        if (over && active.id !== over.id) {
-            const newStatus = (over.id as string).toUpperCase();
-            const appointmentId = active.id as number;
+    const handleDrop = (e: DragEvent, columnId: string) => {
+        e.preventDefault();
+        setDragOverColumn(null);
 
-            // Find current appointment to check if status actually changed
-            const appt = appointments.find(a => a.id === appointmentId);
-            if (appt && appt.status.toUpperCase() !== newStatus) {
-                console.log(`Moving ${appointmentId} to ${newStatus}`);
-                updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
-            }
+        if (!draggedAppointment) return;
+
+        const newStatus = columnId.toUpperCase();
+        if (draggedAppointment.status.toUpperCase() !== newStatus) {
+            console.log(`Moving ${draggedAppointment.id} to ${newStatus}`);
+            updateStatusMutation.mutate(
+                { id: draggedAppointment.id, status: newStatus },
+                {
+                    onError: (error) => {
+                        console.error('Failed to update status:', error);
+                        alert('Не удалось обновить статус. Проверьте права доступа.');
+                    }
+                }
+            );
         }
+        setDraggedAppointment(null);
     };
 
     const handleEdit = (appt: Appointment) => {
@@ -140,19 +168,35 @@ export default function KanbanBoard() {
 
     return (
         <>
-            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    {COLUMNS.map(col => (
+            <div
+                className="grid grid-cols-1 md:grid-cols-5 gap-6"
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    // Find which column we're over
+                    const target = (e.target as HTMLElement).closest('[data-column-id]');
+                    if (target) {
+                        setDragOverColumn(target.getAttribute('data-column-id'));
+                    }
+                }}
+                onDragEnd={() => {
+                    setDragOverColumn(null);
+                    setDraggedAppointment(null);
+                }}
+            >
+                {COLUMNS.map(col => (
+                    <div key={col.id} data-column-id={col.id}>
                         <DroppableColumn
-                            key={col.id}
                             id={col.id}
                             title={col.title}
                             appointments={groupedAppointments[col.id] || []}
                             onEdit={handleEdit}
+                            onDragStart={handleDragStart}
+                            onDrop={handleDrop}
+                            isOver={dragOverColumn === col.id}
                         />
-                    ))}
-                </div>
-            </DndContext>
+                    </div>
+                ))}
+            </div>
 
             <AppointmentEditDialog
                 appointment={selectedAppointment}
