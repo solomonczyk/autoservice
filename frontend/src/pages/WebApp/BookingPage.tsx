@@ -139,9 +139,14 @@ export default function BookingPage() {
         tg?.ready();
         tg?.expand();
 
+        // Set Telegram WebApp theme to match dark premium dashboard
+        tg?.setHeaderColor('#0a1628');       // --background
+        tg?.setBackgroundColor('#0a1628');   // --background
+
         tg?.MainButton.setParams({
-            text: isEditMode ? 'ИЗМЕНИТЬ ЗАПИСЬ' : 'ЗАПИСАТЬСЯ',
-            color: '#2481cc'
+            text: isEditMode ? '✏️ ПЕРЕНЕСТИ ЗАПИСЬ' : '✅ ПОДТВЕРДИТЬ',
+            color: '#3b82f6',                // --primary (electric blue)
+            text_color: '#0f172a',           // --primary-foreground (dark)
         });
 
         api.get('/services/')
