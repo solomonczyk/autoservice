@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.endpoints import shops, services, appointments, slots, webhook, ws, login
+from app.api.endpoints import shops, services, appointments, slots, webhook, ws, login, clients
 
 api_router = APIRouter()
 
@@ -11,4 +11,5 @@ api_router.include_router(appointments.router, prefix="/appointments", tags=["ap
 api_router.include_router(slots.router, prefix="/slots", tags=["slots"])
 api_router.include_router(webhook.router, tags=["telegram"])
 api_router.include_router(ws.router, tags=["websocket"])
+api_router.include_router(clients.router, prefix="/clients", tags=["clients"])
 
