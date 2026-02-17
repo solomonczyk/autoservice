@@ -19,7 +19,6 @@ export default function ClientsPage() {
         queryKey: ['clients'],
         queryFn: async () => {
             const response = await api.get<Client[]>('/clients/');
-            console.log("Clients response:", response.data);
             return response.data;
         }
     });
