@@ -31,13 +31,18 @@ export default function CalendarView() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     const events = useMemo(() => {
-        return appointments.map(appt => ({
-            id: appt.id,
-            title: `Заказ #${appt.id}`,
-            start: new Date(appt.start_time),
-            end: new Date(appt.end_time),
-            resource: appt
-        }))
+        return appointments
+            .filter(appt => {
+                const status = appt.status.toUpperCase();
+                return status !== 'WAITLIST' && status !== 'CANCELLED';
+            })
+            .map(appt => ({
+                id: appt.id,
+                title: `Заказ #${appt.id}`,
+                start: new Date(appt.start_time),
+                end: new Date(appt.end_time),
+                resource: appt
+            }))
     }, [appointments])
 
     const handleSelectEvent = (event: any) => {
