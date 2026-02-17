@@ -38,7 +38,6 @@ export default function ClientsPage() {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Клиенты</h2>
 
             <div className="relative max-w-sm">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
