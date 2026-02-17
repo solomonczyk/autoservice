@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as tz
 from aiogram import Router, F, html
 from aiogram.filters import CommandStart
 from aiogram.types import Message, WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
@@ -213,12 +213,16 @@ async def web_app_data_handler(message: Message):
 
             end_time = start_time_naive + timedelta(minutes=service.duration_minutes)
 
+            # Mark as UTC-aware so asyncpg doesn't convert from local timezone
+            start_time_utc = start_time_naive.replace(tzinfo=tz.utc)
+            end_time_utc = end_time.replace(tzinfo=tz.utc)
+
             status = AppointmentStatus.WAITLIST if is_waitlist else (AppointmentStatus.CONFIRMED if appointment_id else AppointmentStatus.NEW)
 
             if appointment_id:
                 existing_appt.service_id = service_id
-                existing_appt.start_time = start_time_naive
-                existing_appt.end_time = end_time
+                existing_appt.start_time = start_time_utc
+                existing_appt.end_time = end_time_utc
                 existing_appt.status = status
                 appt = existing_appt
             else:
@@ -226,8 +230,8 @@ async def web_app_data_handler(message: Message):
                     shop_id=1,
                     client_id=client.id,
                     service_id=service_id,
-                    start_time=start_time_naive,
-                    end_time=end_time,
+                    start_time=start_time_utc,
+                    end_time=end_time_utc,
                     status=status
                 )
                 db.add(new_appt)
@@ -297,4 +301,4 @@ async def any_message(message: Message):
             )
             
             # 4. Reply to user
-            await message.answer(response)
+            await message.answer(response, reply_markup=get_main_keyboard())

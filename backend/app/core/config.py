@@ -20,7 +20,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
+    
     OPENAI_API_KEY: Optional[str] = None
+    
+    # GigaChat (Russian AI) settings
+    GIGACHAT_CLIENT_ID: Optional[str] = None
+    GIGACHAT_CLIENT_SECRET: Optional[str] = None
     
     WEBAPP_URL: str = "http://localhost:5173/webapp"
 

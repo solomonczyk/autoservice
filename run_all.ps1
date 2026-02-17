@@ -1,16 +1,52 @@
-# Autoservice Launch Script
+# Autoservice Advanced Launch Script
+$ErrorActionPreference = "Stop"
 
-Write-Host "Starting Autoservice Project components..." -ForegroundColor Cyan
+Clear-Host
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "   AUTOSERVICE MVP - STARTUP SYSTEM       " -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor Cyan
 
-# Start Backend
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; if (Test-Path venv) { .\venv\Scripts\Activate.ps1 }; uvicorn app.main:app --reload" -WindowStyle Normal
+# 1. Start Docker Infrastructure
+Write-Host "[1/4] Starting Docker infrastructure (DB and Redis)..." -ForegroundColor Yellow
+try {
+    docker-compose up -d db redis
+    Write-Host "Docker services are up." -ForegroundColor Green
+}
+catch {
+    Write-Host "Failed to start Docker. Please ensure Docker Desktop is running." -ForegroundColor Red
+    exit
+}
 
-# Start Bot
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; if (Test-Path venv) { .\venv\Scripts\Activate.ps1 }; python bot_main.py" -WindowStyle Normal
+# 2. Start Backend
+Write-Host "[2/4] Launching Backend (FastAPI)..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\backend'; uvicorn app.main:app --reload --port 8000" -WindowStyle Normal
 
-# Start Frontend
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd frontend; npm run dev" -WindowStyle Normal
+# 3. Start Telegram Bot
+Write-Host "[3/4] Launching Telegram Bot..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\backend'; python bot_main.py" -WindowStyle Normal
 
-Write-Host "Backend, Bot, and Frontend are launching in separate windows." -ForegroundColor Green
-Write-Host "Press any key to exit this launcher..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+# 4. Start Frontend
+Write-Host "[4/4] Launching Frontend (Vite)..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\frontend'; npm run dev" -WindowStyle Normal
+
+# 5. Optional: Start Ngrok
+if (Test-Path "ngrok.exe") {
+    Write-Host "[BONUS] Launching Ngrok tunnel..." -ForegroundColor Magenta
+    Start-Process cmd -ArgumentList "/k", "ngrok http 5173" -WindowStyle Normal
+}
+
+Write-Host ""
+Write-Host "==========================================" -ForegroundColor Cyan
+Write-Host "All services are launching!" -ForegroundColor Green
+Write-Host "- API: http://localhost:8000"
+Write-Host "- Web App: http://localhost:5173"
+Write-Host "- Dashboard: http://localhost:5173/dashboard"
+if (Test-Path "ngrok.exe") {
+    Write-Host "- Ngrok: Check the separate CMD window for the public URL" -ForegroundColor Magenta
+}
+Write-Host "==========================================" -ForegroundColor Cyan
+
+Write-Host ""
+Write-Host "[TIP] Check the separate windows for logs." -ForegroundColor Gray
+Write-Host "Press any key to close this launcher (services will stay running)..."
+Read-Host

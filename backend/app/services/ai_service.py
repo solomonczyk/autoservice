@@ -1,6 +1,6 @@
 import logging
 from typing import List, Optional
-from openai import AsyncOpenAI
+from gigachat import GigaChat
 from app.core.config import settings
 from app.models.models import Service
 
@@ -8,15 +8,25 @@ logger = logging.getLogger(__name__)
 
 class AIService:
     _instance: Optional['AIService'] = None
-    _client: Optional[AsyncOpenAI] = None
+    _client: Optional[GigaChat] = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(AIService, cls).__new__(cls)
-            if settings.OPENAI_API_KEY:
-                cls._client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            if settings.GIGACHAT_CLIENT_SECRET:
+                try:
+                    # GIGACHAT_CLIENT_SECRET is already a base64-encoded authorization key
+                    cls._client = GigaChat(
+                        credentials=settings.GIGACHAT_CLIENT_SECRET,
+                        scope="GIGACHAT_API_PERS",
+                        verify_ssl_certs=False
+                    )
+                    logger.info("GigaChat client initialized successfully")
+                except Exception as e:
+                    logger.error(f"Failed to initialize GigaChat: {e}")
+                    cls._client = None
             else:
-                logger.warning("OPENAI_API_KEY not set. AI consultations will be disabled.")
+                logger.warning("GIGACHAT credentials not set. AI consultations will be disabled.")
         return cls._instance
 
     async def get_consultation(self, user_message: str, services: List[Service]) -> str:
@@ -40,23 +50,25 @@ class AIService:
 1. Будьте вежливы и профессиональны.
 2. Если клиент описывает проблему (например, "что-то стучит"), предложите подходящую услугу из списка (например, диагностику подвески).
 3. Если клиент спрашивает цену, назовите её из списка выше.
-4. Если клиент хочет записаться, вежливо попросите его нажать кнопку "📅 Записаться" внизу или использовать Mini App. 
+4. Если клиент просит записать его на конкретное время или дату, вежливо объясните: "К сожалению, у меня пока нет доступа к календарю мастеров для прямой записи. Пожалуйста, нажмите кнопку '📅 Записаться' ниже 👇 или используйте наше мини-приложение для выбора удобного времени."
 5. Отвечайте на русском языке. Кратко и по делу.
 """
 
         try:
-            response = await self._client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
+            # Prepare payload for GigaChat
+            payload = {
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
                 ],
-                max_tokens=500,
-                temperature=0.7
-            )
+                "max_tokens": 500,
+                "temperature": 0.7
+            }
+            
+            response = self._client.chat(payload)
             return response.choices[0].message.content
         except Exception as e:
-            logger.error(f"OpenAI error: {e}")
+            logger.error(f"GigaChat error: {e}")
             return "Произошла ошибка при обращении к ИИ. Пожалуйста, попробуйте позже или используйте меню."
 
 # Singleton instance
