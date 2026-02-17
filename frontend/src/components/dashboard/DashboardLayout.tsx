@@ -21,11 +21,11 @@ export default function DashboardLayout() {
     ];
 
     return (
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-                <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-xl font-bold text-gray-800 dark:text-white">Автосервис</span>
+            <aside className="w-64 bg-card border-r border-border">
+                <div className="h-16 flex items-center justify-center border-b border-border">
+                    <span className="text-xl font-bold text-foreground tracking-tighter">AUTOSERVICE</span>
                 </div>
                 <nav className="p-4 space-y-2">
                     {navItems.map((item) => {
@@ -36,10 +36,10 @@ export default function DashboardLayout() {
                                 key={item.href}
                                 to={item.href}
                                 className={cn(
-                                    "flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                                    "flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
                                     isActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 translate-x-1"
+                                        : "text-muted-foreground hover:bg-accent/10 hover:text-accent hover:translate-x-1"
                                 )}
                             >
                                 <Icon className="mr-3 h-5 w-5" />
@@ -52,19 +52,19 @@ export default function DashboardLayout() {
 
             {/* Main Content */}
             <main className="flex-1 overflow-auto">
-                <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-8">
-                    <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
+                <header className="h-16 bg-background/50 backdrop-blur-md border-b border-border sticky top-0 z-10 flex items-center justify-between px-8">
+                    <h1 className="text-xl font-bold text-foreground">
                         {navItems.find(i => i.href === location.pathname)?.name || "Панель управления"}
                     </h1>
                     <div className="flex items-center space-x-4">
                         <button
                             onClick={logout}
-                            className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors"
+                            className="flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors px-3 py-2 rounded-lg hover:bg-destructive/10"
                         >
                             <span className="hidden md:inline">Выйти</span>
                             <LogOut size={18} />
                         </button>
-                        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-accent shadow-inner"></div>
                     </div>
                 </header>
                 <div className="p-8">

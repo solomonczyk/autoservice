@@ -41,48 +41,48 @@ export default function ClientsPage() {
             <h2 className="text-2xl font-bold">Клиенты</h2>
 
             <div className="relative max-w-sm">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <input
                     type="text"
                     placeholder="Поиск по имени или телефону..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8 pr-4 py-2 border rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+                    className="pl-9 pr-4 py-2 border border-border rounded-xl w-full bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
                 />
             </div>
 
-            <div className="border rounded-md overflow-hidden dark:border-gray-700">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
+            <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+                <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted/50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Имя</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Телефон</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Авто</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Telegram ID</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">ID</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Имя</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Телефон</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Авто</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Telegram ID</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                    <tbody className="divide-y divide-border bg-card">
                         {isLoading ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
                                     Загрузка...
                                 </td>
                             </tr>
                         ) : filteredClients.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
                                     Клиенты не найдены
                                 </td>
                             </tr>
                         ) : (
                             filteredClients.map((client) => (
-                                <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{client.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{client.full_name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{client.phone}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{client.vehicle_info || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{client.telegram_id}</td>
+                                <tr key={client.id} className="hover:bg-accent/5 transition-colors duration-150">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{client.id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{client.full_name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{client.phone}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{client.vehicle_info || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{client.telegram_id}</td>
                                 </tr>
                             ))
                         )}

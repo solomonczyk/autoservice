@@ -37,7 +37,7 @@ function DraggableCard({ appointment, onEdit, onDragStart }: {
                                 e.stopPropagation();
                                 onEdit(appointment);
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-opacity"
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-accent/10 text-muted-foreground hover:text-accent rounded transition-all duration-200"
                         >
                             <Edit size={14} className="text-muted-foreground" />
                         </button>
@@ -68,15 +68,15 @@ function DroppableColumn({ id, title, appointments, onEdit, onDragStart, onDrop,
             }}
             onDragEnter={(e) => e.preventDefault()}
             onDrop={(e) => onDrop(e, id)}
-            className={`p-4 rounded-lg min-h-[500px] w-full transition-colors duration-200 ${isOver
-                    ? 'bg-primary/10 ring-2 ring-primary/30'
-                    : 'bg-slate-50 dark:bg-slate-800/50'
+            className={`p-4 rounded-xl min-h-[500px] w-full transition-colors duration-200 border border-transparent ${isOver
+                ? 'bg-primary/10 ring-2 ring-primary/30 border-primary/20'
+                : 'bg-muted/50 hover:bg-muted/80'
                 }`}
         >
-            <h3 className="font-semibold mb-4 text-slate-700 dark:text-slate-300">
+            <h3 className="font-semibold mb-4 text-foreground flex items-center justify-between">
                 {title}
                 {appointments.length > 0 && (
-                    <span className="ml-2 text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                    <span className="ml-2 text-xs font-bold bg-primary/20 text-primary px-2.5 py-0.5 rounded-full">
                         {appointments.length}
                     </span>
                 )}
