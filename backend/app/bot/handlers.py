@@ -8,7 +8,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import joinedload
 
 from app.db.session import async_session_local
-from app.db.models import Client, Appointment, Service, AppointmentStatus
+from app.models.models import Client, Appointment, Service, AppointmentStatus
 from app.bot.keyboards import get_main_keyboard, get_appointment_keyboard
 from app.core.slots import get_available_slots
 from app.services.redis_service import RedisService
