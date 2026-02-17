@@ -4,11 +4,14 @@ import {
     LayoutDashboard,
     CalendarDays,
     Settings,
-    Users
+    Users,
+    LogOut
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardLayout() {
     const location = useLocation();
+    const { logout } = useAuth();
 
     const navItems = [
         { name: "Заказы", href: "/", icon: LayoutDashboard },
@@ -54,7 +57,13 @@ export default function DashboardLayout() {
                         {navItems.find(i => i.href === location.pathname)?.name || "Панель управления"}
                     </h1>
                     <div className="flex items-center space-x-4">
-                        {/* User Menu placeholder */}
+                        <button
+                            onClick={logout}
+                            className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors"
+                        >
+                            <span className="hidden md:inline">Выйти</span>
+                            <LogOut size={18} />
+                        </button>
                         <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
                     </div>
                 </header>
