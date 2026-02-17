@@ -81,93 +81,129 @@
 
     /* Calendar Overrides */
     .rbc-calendar {
-        @apply bg-card text-foreground rounded-xl border-none shadow-sm overflow-hidden font-sans;
+        background-color: hsl(var(--card));
+        color: hsl(var(--foreground));
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     .rbc-header {
-        @apply py-4 font-bold text-muted-foreground uppercase text-xs tracking-wider border-b border-border/10 !important;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-weight: 700;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-month-view,
     .rbc-time-view,
     .rbc-agenda-view {
-        @apply border-none !important;
+        border: none !important;
     }
 
     .rbc-day-bg {
-        @apply border-l border-white/5 !important;
-        /* Extremely subtle separation */
+        border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-off-range-bg {
-        @apply bg-muted/5 !important;
+        background-color: rgba(255, 255, 255, 0.02) !important;
     }
 
     .rbc-today {
-        @apply bg-gradient-to-b from-primary/5 to-transparent !important;
-        /* Soft gradient down */
+        background: linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent) !important;
     }
 
     .rbc-event {
-        @apply bg-primary/90 text-primary-foreground rounded-md shadow-lg shadow-primary/20 border-none px-2 py-1 backdrop-blur-sm !important;
+        background-color: hsl(var(--primary) / 0.9) !important;
+        color: hsl(var(--primary-foreground)) !important;
+        border-radius: 0.375rem;
+        border: none !important;
+        padding: 0.25rem 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
     .rbc-event-label {
-        @apply hidden;
+        display: none !important;
     }
 
     .rbc-toolbar {
-        @apply mb-6 gap-2 !important;
+        margin-bottom: 1.5rem !important;
+        gap: 0.5rem !important;
     }
 
     .rbc-toolbar span.rbc-toolbar-label {
-        @apply text-xl font-bold text-foreground capitalize;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        text-transform: capitalize;
     }
 
     .rbc-toolbar button {
-        @apply text-foreground border border-border/20 rounded-lg bg-card hover:bg-white/5 hover:text-accent transition-colors px-4 py-2 !important;
+        color: hsl(var(--foreground)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 0.5rem !important;
+        background-color: hsl(var(--card)) !important;
+        transition: all 0.2s;
+        padding: 0.5rem 1rem !important;
+    }
+
+    .rbc-toolbar button:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: hsl(var(--accent)) !important;
     }
 
     .rbc-toolbar button.rbc-active {
-        @apply bg-primary text-primary-foreground border-none hover:bg-primary/90 !important;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        background-color: hsl(var(--primary)) !important;
+        color: hsl(var(--primary-foreground)) !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
     }
 
     .rbc-toolbar button:focus,
-    .rbc-toolbar button:active,
-    .rbc-toolbar button:hover {
-        @apply outline-none shadow-none;
+    .rbc-toolbar button:active {
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     .rbc-month-row {
-        @apply border-t border-white/5 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-day-slot .rbc-time-slot {
-        @apply border-t border-white/5 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-time-header-content {
-        @apply border-l border-white/5 !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-timeslot-group {
-        @apply border-b border-white/5 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-time-content {
-        @apply border-t border-white/5 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
     .rbc-time-gutter .rbc-timeslot-group {
-        @apply border-none !important;
+        border: none !important;
     }
 
     .rbc-label {
-        @apply text-xs text-muted-foreground/70 font-medium !important;
+        font-size: 0.75rem !important;
+        color: hsl(var(--muted-foreground)) !important;
+        font-weight: 500 !important;
+        opacity: 0.7;
     }
 
     .rbc-current-time-indicator {
-        @apply bg-accent h-[1px] shadow-[0_0_8px_rgba(59, 130, 246, 0.8)] !important;
+        background-color: hsl(var(--accent)) !important;
+        height: 1px !important;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
     }
 }
