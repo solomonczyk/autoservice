@@ -113,7 +113,14 @@ export default function BookingPage() {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
+    const [selectedDate, setSelectedDate] = useState<Date>(() => {
+        const now = new Date();
+        // If it's past 18:00, default to next day
+        if (now.getHours() >= 18) {
+            return startOfDay(addDays(now, 1));
+        }
+        return startOfDay(now);
+    });
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>('');
     const [slotsLoading, setSlotsLoading] = useState(false);

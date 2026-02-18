@@ -22,6 +22,7 @@ services:
     environment:
       - POSTGRES_SERVER=db:5432
       - REDIS_HOST=redis
+      - TZ=Europe/Moscow
     depends_on:
       db:
         condition: service_healthy
