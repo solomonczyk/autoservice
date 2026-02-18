@@ -27,6 +27,9 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     buttons.append([
         KeyboardButton(text="📱 Отправить номер", request_contact=True)
     ])
+    buttons.append([
+        KeyboardButton(text="📄 Правовая информация")
+    ])
 
     return ReplyKeyboardMarkup(
         keyboard=buttons,
