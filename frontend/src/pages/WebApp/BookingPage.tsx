@@ -193,7 +193,7 @@ export default function BookingPage() {
 
         const data = {
             service_id: selectedService.id,
-            date: isWaitlist ? selectedDate.toISOString() : selectedTime,
+            date: isWaitlist ? format(selectedDate, 'yyyy-MM-dd') : selectedTime,
             appointment_id: appointmentId, // Include if editing
             is_waitlist: isWaitlist
         };
