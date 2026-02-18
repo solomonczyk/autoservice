@@ -1,0 +1,1 @@
+ALTER TYPE appointmentstatus ADD VALUE IF NOT EXISTS 'WAITLIST';

@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1
 
 # System deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    netcat-openbsd \
+    netcat-openbsd tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # Python deps
