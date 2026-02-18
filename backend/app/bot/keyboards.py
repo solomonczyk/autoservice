@@ -31,7 +31,7 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=buttons,
         resize_keyboard=True,
-        input_field_placeholder="Задайте вопрос или выберите действие..."
+        input_field_placeholder="✍️ Напишите вопрос или выберите действие..."
     )
 
 

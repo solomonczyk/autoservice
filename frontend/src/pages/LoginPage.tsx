@@ -43,20 +43,22 @@ export default function LoginPage() {
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Имя пользователя</label>
                             <input
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground/50"
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
                                 required
+                                placeholder="Например: admin"
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Пароль</label>
                             <input
                                 type="password"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground/50"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 required
+                                placeholder="Ваш пароль"
                             />
                         </div>
                         {error && <div className="text-red-500 text-sm">{error}</div>}

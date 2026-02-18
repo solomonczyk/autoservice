@@ -76,7 +76,8 @@ export default function SettingsPage() {
                             <input
                                 type="number"
                                 {...register('duration_minutes', { required: true, min: 15 })}
-                                className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
+                                className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-muted-foreground/50"
+                                placeholder="60"
                             />
                         </div>
                     </div>
@@ -87,7 +88,8 @@ export default function SettingsPage() {
                             <input
                                 type="number"
                                 {...register('base_price', { required: true, min: 0 })}
-                                className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
+                                className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-muted-foreground/50"
+                                placeholder="1000"
                             />
                         </div>
                     </div>
