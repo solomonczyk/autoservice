@@ -9,7 +9,8 @@ services:
     ports:
       - "127.0.0.1:8080:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     restart: unless-stopped
 
   backend:
@@ -40,6 +41,7 @@ services:
     environment:
       - POSTGRES_SERVER=db:5432
       - REDIS_HOST=redis
+      - TZ=Europe/Moscow
     depends_on:
       db:
         condition: service_healthy
