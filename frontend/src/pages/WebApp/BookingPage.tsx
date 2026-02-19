@@ -156,11 +156,36 @@ export default function BookingPage() {
             text_color: '#0f172a',           // --primary-foreground (dark)
         });
 
-        api.get('/services/')
-            .then(res => setServices(res.data))
-            .catch(err => console.error("Failed to fetch services", err))
-            .finally(() => setLoading(false));
-    }, [isEditMode]);
+        const fetchData = async () => {
+            try {
+                const servicesRes = await api.get('/services/');
+                setServices(servicesRes.data);
+
+                if (appointmentId) {
+                    try {
+                        const apptRes = await api.get(`/appointments/${appointmentId}`);
+                        const appt = apptRes.data;
+                        const service = servicesRes.data.find((s: Service) => s.id === appt.service_id);
+
+                        if (service) {
+                            setSelectedService(service);
+                            // Pre-select date from appointment
+                            const apptDate = new Date(appt.start_time);
+                            setSelectedDate(startOfDay(apptDate));
+                        }
+                    } catch (apptErr) {
+                        console.error("Failed to fetch appointment", apptErr);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch data", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [isEditMode, appointmentId]);
 
 
     // Next 30 days range computed inline where needed

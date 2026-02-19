@@ -52,7 +52,6 @@ class Client(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, index=True)
-    phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255))
     vehicle_info: Mapped[Optional[str]] = mapped_column(String(500))
 

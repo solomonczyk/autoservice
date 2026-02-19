@@ -229,3 +229,18 @@ async def update_appointment_status(
 async def read_appointments(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Appointment).offset(skip).limit(limit))
     return result.scalars().all()
+
+@router.get("/{id}", response_model=AppointmentRead)
+async def read_appointment(
+    id: int, 
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get appointment by ID. 
+    Publicly accessible (for now) to allow WebApp to fetch details without login.
+    In production, this should ideally use a signed token or similar.
+    """
+    appt = await db.get(Appointment, id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return appt

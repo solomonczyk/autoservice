@@ -466,7 +466,31 @@ async def consultation_button_handler(message: Message):
 
 @router.message()
 async def any_message(message: Message):
-    if not message.text:
+    text = message.text
+    
+    # Handle voice messages
+    if message.voice:
+        # Show typing action while processing audio
+        from aiogram.utils.chat_action import ChatActionSender
+        from app.services.voice_service import voice_service
+        
+        async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
+            transcribed_text = await voice_service.transcribe_voice(message.bot, message.voice)
+            
+            if not transcribed_text:
+                await message.answer(
+                    "😔 Не удалось распознать голосовое сообщение.\n"
+                    "Пожалуйста, попробуйте сказать чётче или напишите текст.",
+                    parse_mode="HTML"
+                )
+                return
+            
+            # Use transcribed text as if user sent it
+            text = transcribed_text
+            # Reply with what was understood (good UX)
+            await message.reply(f"🎤 <i>Вы сказали:</i> \"{text}\"", parse_mode="HTML")
+
+    if not text:
         return
 
     # Treat any unhandled text as a request for consultation
@@ -482,7 +506,7 @@ async def any_message(message: Message):
         async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
             # 3. Get AI response
             response = await ai_service.get_consultation(
-                user_message=message.text,
+                user_message=text,
                 services=services
             )
 
